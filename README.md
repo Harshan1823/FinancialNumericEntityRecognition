@@ -1,1 +1,1 @@
-# FinancialNumericEntityRecognition
+# Financial Numeric Entity Recognition
