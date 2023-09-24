@@ -9,6 +9,7 @@ Features
 4. Built with the latest advancements in NLP and machine learning.
 
 Installation
+
 **1. Clone the Repository:**
    
    `git clone https://github.com/Harshan1823/FinancialNumericEntityRecognition.git`
