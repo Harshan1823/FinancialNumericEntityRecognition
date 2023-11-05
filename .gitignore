@@ -1,9 +1,13 @@
 # Data Folder
-data/raw
-
+/data/
+notebooks/
 # Logs
 logs/
+mlruns/
+.vscode/
+finer_env/
 
+.DS_Store
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
