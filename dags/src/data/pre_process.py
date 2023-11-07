@@ -25,6 +25,8 @@ def conver_to_list(PROJECT_FOLDER, FILE):
         PATH_FILE = FINAL_FOLDER/f'{FILE}.csv'
         print(PATH_FILE)
         if(PATH_FILE.exists()):
+            print("Data already exists")
+            return None
         FINAL_FOLDER.mkdir(parents=True, exist_ok=True)
         PICKLE_FOLDER = PROJECT_FOLDER / 'model_store'
         PICKLE_FOLDER.mkdir(parents=True, exist_ok=True)
