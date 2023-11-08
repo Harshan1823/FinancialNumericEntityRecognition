@@ -40,11 +40,11 @@ environment running
 **3. Install Dependencies**
 
     pip install -r requirements.txt
+    
+**4. Docker:**
 
-  
-
-  
-
-  
-
-
+    echo -e "AIRFLOW_UID=$(id -u)" > .env
+    echo "AIRFLOW_HOME_DIR=$(pwd)" >> .env
+    
+    docker compose up airflow-init
+    docker compose up
