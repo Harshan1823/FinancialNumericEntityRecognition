@@ -3,6 +3,17 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 def merge_data(PROJECT_FOLDER):
+    
+    """
+    Merges and de-duplicates data from raw CSV files.
+
+    This function reads three CSV files (train, test, and validation) located in the 'data/raw' directory 
+    specified by PROJECT_FOLDER. It then concatenates these files and removes duplicate rows based on the 'tokens' column.
+
+    :param PROJECT_FOLDER: A Path object representing the project's root directory.
+    :return: A DataFrame containing the merged and de-duplicated data.
+    """
+    
     try:
         RAW_DATA_FOLDER = PROJECT_FOLDER / 'data' / 'raw'
         train_csv = pd.read_csv(RAW_DATA_FOLDER / 'train.csv')
@@ -13,22 +24,34 @@ def merge_data(PROJECT_FOLDER):
         print(f"Issues in loading raw data files. Error: {e}")
         return None
     
-    final_df = df.drop_duplicates(subset=['tokens'])
-    print(final_df.head())
+    final_df = df.drop_duplicates(subset=['tokens']) # Remove duplicate rows based on the 'tokens' column
+    print(final_df.head()) # Print the first few rows of the final DataFrame
     return final_df
 
 def split_data(PROJECT_FOLDER):
+    
+    """
+    Splits the merged data into training and testing sets and saves them as CSV files.
+
+    This function checks if the training and testing CSV files already exist in the 'data/inter' directory 
+    specified by PROJECT_FOLDER. If they do not exist, it calls the merge_data function to merge the raw data 
+    and then splits it into training and testing sets. The resulting sets are saved as CSV files in the 
+    'data/inter' directory.
+
+    :param PROJECT_FOLDER: A Path object representing the project's root directory.
+    """
+    
     INT_FOLDER = PROJECT_FOLDER / 'data' / 'inter'
     train_path = INT_FOLDER / 'train.csv'
     test_path = INT_FOLDER / 'test.csv'
-    INT_FOLDER.mkdir(parents=True, exist_ok=True)
+    INT_FOLDER.mkdir(parents=True, exist_ok=True) # Create the 'data/inter' directory if it doesn't exist
     # Check if the files exist
     if not train_path.exists() and not test_path.exists():
         print('started splitting data into train and test data.')
-        df = merge_data(PROJECT_FOLDER)
-        train_df, test_df = train_test_split(df, test_size=0.2)
-        test_df.to_csv(test_path, index = False)
-        train_df.to_csv(train_path, index = False)
+        df = merge_data(PROJECT_FOLDER) # Calls merge_data function to get the merged data
+        train_df, test_df = train_test_split(df, test_size=0.2) # Splits data into train and test sets
+        test_df.to_csv(test_path, index = False) # Save the test set as a CSV file
+        train_df.to_csv(train_path, index = False) # Save the train set as a CSV file
     else:
         print("Train and test CSV files already exist. Skipping the processing.")
 
