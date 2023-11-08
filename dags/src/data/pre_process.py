@@ -52,15 +52,15 @@ def conver_to_list(PROJECT_FOLDER, FILE):
             raise Exception("data is empty")
         print('started coverting columns data from string to list.')
         df['tokens'] = df['tokens'].apply(ast.literal_eval)
-        word_counts = Counter(word for token_list in df['tokens'] for word in token_list)
-        df['tokens'] = df['tokens'].apply(ast.literal_eval)
-        word_counts = Counter(word for token_list in df['tokens'] for word in token_list)
         print('Completed tokens columns data from string to list.')
+
         print('Starting tokens num.')
         df['processed_data'] = df['tokens'].apply(process_list)
         print('Completed tokens num.')
+
         word_counts = Counter(word for token_list in df['processed_data'] for word in token_list)
         word_to_id = {word: idx for idx, (word, count) in enumerate(word_counts.items(), start=1) if count >= 5}
+        
         if(FILE=='train'):
             pickle_file_path = PICKLE_FOLDER / 'word_to_id.pkl'
             with open(pickle_file_path, 'wb') as f:
