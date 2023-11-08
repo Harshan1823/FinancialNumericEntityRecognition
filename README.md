@@ -8,23 +8,38 @@ Features
 3. Seamless integration with existing financial systems.
 4. Built with the latest advancements in NLP and machine learning.
 
-Installation
+## Getting Started
+
+These instructions will give you a copy of the project up and running on
+your local machine for development and testing purposes. See deployment
+for notes on deploying the project on a live system.
+
+### Prerequisites
+
+Requirements for the software and other tools to build, test and push 
+- [Docker](https://www.example.com)
+- [Airflow](https://www.example.com)
+- [ELK](https://www.example.com)
+- [DVC](https://www.example.com)
+- [GCP](https://www.example.com)
+
+### Installing
+
+A step by step series of examples that tell you how to get a development
+environment running
 
 **1. Clone the Repository:**
-   
-   `git clone https://github.com/Harshan1823/FinancialNumericEntityRecognition.git`
-   
-   `cd FinancialNumericEntityRecognition`
-   
+
+    git clone https://github.com/Harshan1823/FinancialNumericEntityRecognition.git
+
 **2. Set Up a Virtual Environment (optional but recommended):**
 
-   `python -m venv venv`
-   
-   source venv/bin/activate  # On Windows use `venv\Scripts\Activate`
+    python -m venv venv
+    source venv/bin/activate  # On Windows use `venv\Scripts\Activate`
+    
+**3. Install Dependencies**
 
-**3. Install Dependencies:**
-
-  `pip install -r requirements.txt`
+    pip install -r requirements.txt
 
   
 
