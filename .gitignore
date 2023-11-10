@@ -1,6 +1,8 @@
 # Data Folder
 /data/
 notebooks/
+my_new_env/
+venv_proj/
 # Logs
 logs/
 mlruns/
