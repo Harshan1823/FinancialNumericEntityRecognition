@@ -36,3 +36,4 @@ def tokenise_data(PROJECT_FOLDER, FILE, LOGGER):
     df['tokenise_data'] = df['processed_data'].apply(lambda x: [token_id_mapping[word] if word in token_id_mapping else token_id_mapping['UNK'] for word in x])
     FILE_LOC = PROJECT_FOLDER/ 'data' / 'final' / f'{FILE}_encoded.json'
     df.to_json(FILE_LOC, orient='records', lines=True)
+    
