@@ -48,10 +48,10 @@ def conver_to_list(PROJECT_FOLDER, FILE):
         df['processed_data'] = df['tokens'].apply(process_list)
         print('Completed tokens num.')
 
-        word_counts = Counter(word for token_list in df['processed_data'] for word in token_list)
-        word_to_id = {word: idx for idx, (word, count) in enumerate(word_counts.items(), start=1) if count >= 5}
-        
         if(FILE=='train'):
+            word_counts = Counter(word for token_list in df['processed_data'] for word in token_list)
+            word_to_id = {word: idx for idx, (word, count) in enumerate(word_counts.items(), start=3) if count >= 5}
+            word_to_id['UNK'] = 1
             pickle_file_path = PICKLE_FOLDER / 'word_to_id.pkl'
             with open(pickle_file_path, 'wb') as f:
                 pickle.dump(word_to_id, f)
@@ -61,7 +61,3 @@ def conver_to_list(PROJECT_FOLDER, FILE):
     except Exception as e:
         print(f"Issues in coverting columns data from string to list. Error: {e}")
         return None
-    
-
-    
-
