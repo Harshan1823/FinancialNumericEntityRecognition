@@ -25,10 +25,9 @@ def merge_data(PROJECT_FOLDER):
         return None
     
     final_df = df.drop_duplicates(subset=['tokens']) # Remove duplicate rows based on the 'tokens' column
-    print(final_df.head()) # Print the first few rows of the final DataFrame
     return final_df
 
-def split_data(PROJECT_FOLDER):
+def split_data(PROJECT_FOLDER, logger):
     
     """
     Splits the merged data into training and testing sets and saves them as CSV files.
@@ -45,15 +44,21 @@ def split_data(PROJECT_FOLDER):
     train_path = INT_FOLDER / 'train.csv'
     test_path = INT_FOLDER / 'test.csv'
     INT_FOLDER.mkdir(parents=True, exist_ok=True) # Create the 'data/inter' directory if it doesn't exist
+    
     # Check if the files exist
     if not train_path.exists() and not test_path.exists():
-        print('started splitting data into train and test data.')
+        logger.info('Started splitting data into train and test data.')
         df = merge_data(PROJECT_FOLDER) # Calls merge_data function to get the merged data
-        train_df, test_df = train_test_split(df, test_size=0.2) # Splits data into train and test sets
-        test_df.to_csv(test_path, index = False) # Save the test set as a CSV file
-        train_df.to_csv(train_path, index = False) # Save the train set as a CSV file
+        if df is not None:
+            train_df, test_df = train_test_split(df, test_size=0.2)  # Splits data into train and test sets
+            test_df.to_csv(test_path, index=False)  # Save the test set as a CSV file
+            train_df.to_csv(train_path, index=False)  # Save the train set as a CSV file
+            logger.info("Train and test data split and saved successfully.")
+        else:
+            print("Train and test CSV files already exist. Skipping the processing.")
+            logger.warning("Skipping data splitting due to issues in merging data.")
     else:
-        print("Train and test CSV files already exist. Skipping the processing.")
+        logger.info("Train and test CSV files already exist. Skipping the processing.")
 
 
     

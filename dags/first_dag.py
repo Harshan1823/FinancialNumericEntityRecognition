@@ -48,7 +48,7 @@ download_data_dag = PythonOperator(
 split_data_dag = PythonOperator(
     task_id = 'split_data',
     python_callable = split_data,
-    op_kwargs = {'PROJECT_FOLDER': PROJECT_FOLDER},
+    op_kwargs = {'PROJECT_FOLDER': PROJECT_FOLDER, 'logger': logger},
     dag = dag
 )
 
@@ -56,7 +56,7 @@ convert_train_list_dag = PythonOperator(
     task_id = 'Convert_TRAIN_List',
     python_callable = conver_to_list,
     execution_timeout=timedelta(minutes=10),  # set the timeout to 30 minutes
-    op_kwargs = {'PROJECT_FOLDER': PROJECT_FOLDER, "FILE": "train"},
+    op_kwargs = {'PROJECT_FOLDER': PROJECT_FOLDER, "FILE": "train", 'logger': logger},
     dag = dag
 )
 
@@ -64,7 +64,7 @@ convert_train_list_dag = PythonOperator(
 convert_test_list_dag = PythonOperator(
     task_id = 'Convert_TEST_List',
     python_callable = conver_to_list,
-    op_kwargs = {'PROJECT_FOLDER': PROJECT_FOLDER, "FILE": "test"},
+    op_kwargs = {'PROJECT_FOLDER': PROJECT_FOLDER, "FILE": "test",'logger': logger},
     dag = dag
 )
 

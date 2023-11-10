@@ -3,8 +3,7 @@ import ast
 import re
 from collections import Counter
 import pickle
-from collections import Counter
-import pickle
+
 def process_string(s):
     # Check if the string represents a number (integer or decimal)
     if re.match(r'^\d+(\.\d+)?$', s):
@@ -15,7 +14,7 @@ def process_string(s):
 def process_list(input_list):
     return [process_string(s) for s in input_list]
 
-def conver_to_list(PROJECT_FOLDER, FILE):
+def conver_to_list(PROJECT_FOLDER, FILE, logger):
     
     """
     Convert string data in the 'tokens' column to lists of processed tokens and save as a CSV file.
@@ -36,17 +35,18 @@ def conver_to_list(PROJECT_FOLDER, FILE):
         PATH_FILE = FINAL_FOLDER/f'{FILE}.csv'
         if(PATH_FILE.exists()):
             print("Data already exists")
+            logger.info("Data already exists")
             return None
         df = pd.read_csv(INTER_FOLDER / f'{FILE}.csv')
         if(df is None):
             raise Exception("data is empty")
-        print('started coverting columns data from string to list.')
+        logger.info('Started converting columns data from string to list.')
         df['tokens'] = df['tokens'].apply(ast.literal_eval)
-        print('Completed tokens columns data from string to list.')
+        logger.info('Completed tokens columns data from string to list.')
 
-        print('Starting tokens num.')
+        logger.info('Starting tokens processing.')
         df['processed_data'] = df['tokens'].apply(process_list)
-        print('Completed tokens num.')
+        print('Completed tokens processing.')
 
         if(FILE=='train'):
             word_counts = Counter(word for token_list in df['processed_data'] for word in token_list)
@@ -55,9 +55,14 @@ def conver_to_list(PROJECT_FOLDER, FILE):
             pickle_file_path = PICKLE_FOLDER / 'word_to_id.pkl'
             with open(pickle_file_path, 'wb') as f:
                 pickle.dump(word_to_id, f)
-            print(f"Vocabulary saved to {pickle_file_path}")
+            logger.info(f"Vocabulary saved to {pickle_file_path}")
         df.to_csv(PATH_FILE, index=False)
+        logger.info(f"Data saved to {PATH_FILE}")
         
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+    except pd.errors.EmptyDataError:
+        logger.warning("Input CSV file is empty.")
     except Exception as e:
-        print(f"Issues in coverting columns data from string to list. Error: {e}")
+        logger.error(f"Issues in converting columns data from string to list. Error: {e}")
         return None
