@@ -35,12 +35,22 @@ def download_and_store_data(DATASET_NAME: str, logger, root_dir):
                 continue
             logger.info(f"Trying to download {split} data")
             logger.info(f"{split} data will be saved to {filepath}")
+            logger.debug(f"Loading {split} data from {DATASET_NAME}") # Log before attempting to load the dataset
             data = datasets.load_dataset(DATASET_NAME, split=split) # Download data for the specified split
+            logger.debug(f"Successfully loaded {split} data. Dataset details: {data}") # Log after successfully loading the dataset
             df = pd.DataFrame(data)
             df.to_csv(filepath, index=False) # Save the data as a CSV file
             logger.info(f"{split} data saved to {filepath}")
             logger.info(f"Downloaded {split} data")
 
+    except datasets.DatasetNotFoundError as e:
+        logger.error(f"Dataset not found: {e}")
+    except datasets.DownloadError as e:
+        logger.error(f"Error downloading dataset: {e}")
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        # Log exception details for better debugging
+        logger.exception("An unexpected error occurred")
         raise
+    else:
+        # Log a message indicating successful completion
+        logger.info("Download and store process completed successfully")
