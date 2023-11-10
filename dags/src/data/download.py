@@ -25,6 +25,7 @@ def download_and_store_data(DATASET_NAME: str, logger, root_dir):
     splits = ["train", "validation", "test"]
     logger.info("Starting the download process")
     DESTINATION_FOLDER = root_dir / 'data' / 'raw'
+    DESTINATION_FOLDER.mkdir(parents=True, exist_ok=True)
     try:
         # Save each split as CSV
         for split in splits:
