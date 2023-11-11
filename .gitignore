@@ -1,5 +1,6 @@
 # Data Folder
-/data/
+/data/**/*.csv
+/data/**/*.json
 notebooks/
 my_new_env/
 venv_proj/
