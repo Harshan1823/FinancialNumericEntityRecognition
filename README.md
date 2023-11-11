@@ -48,3 +48,11 @@ environment running
     
     docker compose up airflow-init
     docker compose up
+
+DVC pull is required to get the data files.
+**5. DVC**
+```
+    dvc pull
+```
+
+    
