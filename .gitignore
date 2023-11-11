@@ -1,5 +1,5 @@
 # Data Folder
-/data/
+data/**/*.csv
 notebooks/
 my_new_env/
 venv_proj/
