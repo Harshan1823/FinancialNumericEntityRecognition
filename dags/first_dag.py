@@ -82,7 +82,6 @@ tokenise_train_data_dag = PythonOperator(
     dag = dag
 )
 
-download_data_dag >> split_data_dag >> [convert_test_list_dag, convert_train_list_dag] # type: ignore
+download_data_dag >> split_data_dag >> [convert_train_list_dag, convert_test_list_dag] # type: ignore
 
-convert_test_list_dag >> tokenise_test_data_dag # type: ignore
-convert_train_list_dag >> tokenise_train_data_dag # type: ignore
+convert_train_list_dag >> [tokenise_test_data_dag, tokenise_train_data_dag] # type: ignore

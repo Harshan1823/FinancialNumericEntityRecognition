@@ -47,7 +47,11 @@ def conver_to_list(PROJECT_FOLDER, FILE, logger):
         logger.info('Starting tokens processing.')
         df['processed_data'] = df['tokens'].apply(process_list)
         print('Completed tokens processing.')
-
+        pickle_file_path = PICKLE_FOLDER / 'word_to_id.pkl'
+        if(pickle_file_path.exists()):
+            print("Pickle file already exists")
+            logger.info("Data already exists")
+            return None
         if(FILE=='train'):
             word_counts = Counter(word for token_list in df['processed_data'] for word in token_list)
             word_to_id = {word: idx for idx, (word, count) in enumerate(word_counts.items(), start=3) if count >= 5}

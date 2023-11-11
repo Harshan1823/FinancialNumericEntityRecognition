@@ -8,6 +8,7 @@ logs/
 mlruns/
 .vscode/
 finer_env/
+venv12/
 
 .DS_Store
 # Byte-compiled / optimized / DLL files
