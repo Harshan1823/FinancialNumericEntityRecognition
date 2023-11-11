@@ -15,7 +15,7 @@ def setup_logger(PROJECT_ROOT, name):
     import logging.handlers
     from pathlib import Path
     # Determine the project root and log directory
-    PROJECT_ROOT = Path(__file__).parent.parent.parent.parent # Assuming this is the correct project structure
+    # PROJECT_ROOT = Path(__file__).parent.parent.parent.parent # Assuming this is the correct project structure
     log_dir = PROJECT_ROOT / 'logs'
     log_filepath = log_dir / 'app.log'  # The path for the log file
     print(PROJECT_ROOT) # Print the determined project root for debugging purposes
