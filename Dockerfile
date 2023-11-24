@@ -1,19 +1,14 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+# Use the official Airflow image as the base image
+FROM apache/airflow:2.7.2
 
-# Set the working directory in the container
-WORKDIR /app
+# Install additional dependencies
+RUN pip install tensorflow numpy pandas scikit-learn datasets
 
-# Copy the dependencies file to the working directory
-COPY requirements.txt .
+# Copy your project files into the Docker image
+COPY . /opt/airflow
 
-# Install any dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Set the working directory
+WORKDIR /opt/airflow
 
-COPY dags .
-
-EXPOSE 8080
-
-ENV NAME World
-
-CMD ["python", "/dags/first_dag.py"]
+# Specify the user and group that will run the commands inside the container
+USER airflow:airflow
