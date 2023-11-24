@@ -48,3 +48,10 @@ environment running
     
     docker compose up airflow-init
     docker compose up
+
+**5. DVC**
+```
+    dvc pull
+```
+
+    

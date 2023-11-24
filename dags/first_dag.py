@@ -17,6 +17,7 @@ from dags.src.data.logger_info import setup_logger
 from dags.src.data.data_split import split_data
 from dags.src.data.pre_process import conver_to_list
 from dags.src.data.tokenise_data import tokenise_data
+from dags.src.model.generate_tokeniser import genereate_tokenizer
 # split_data(PROJECT_FOLDER)
 
 
@@ -68,21 +69,12 @@ convert_test_list_dag = PythonOperator(
     dag = dag
 )
 
-tokenise_test_data_dag = PythonOperator(
-    task_id = 'tokenise_test_data_dag',
-    python_callable = tokenise_data,
-    op_kwargs = {'PROJECT_FOLDER': PROJECT_FOLDER, "FILE": "test", "LOGGER": token_logger},
-    dag = dag
-)
-
-tokenise_train_data_dag = PythonOperator(
-    task_id = 'tokenise_train_data_dag',
-    python_callable = tokenise_data,
-    op_kwargs = {'PROJECT_FOLDER': PROJECT_FOLDER, "FILE": "train", "LOGGER": token_logger},
+generate_tokeniser_dag = PythonOperator(
+    task_id = 'Generate_Tokeniser',
+    python_callable = genereate_tokenizer,
+    op_kwargs = {'PROJECT_FOLDER': PROJECT_FOLDER, 'logger': setup_logger(root_dir, 'genereate_tokenizer')},
     dag = dag
 )
 
 download_data_dag >> split_data_dag >> [convert_test_list_dag, convert_train_list_dag] # type: ignore
-
-convert_test_list_dag >> tokenise_test_data_dag # type: ignore
-convert_train_list_dag >> tokenise_train_data_dag # type: ignore
+convert_train_list_dag >> generate_tokeniser_dag # type: ignore
