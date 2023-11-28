@@ -8,8 +8,8 @@ import pandas as pd
 @pytest.fixture
 def mock_csv_data():
     data = {
-        'tokens': ['token1', 'token2', 'token3'],  # duplicate 'token1'
-        'other_column': [1, 2, 3]
+        'tokens': ['token1', 'token1', 'token2', 'token3'],  
+        'other_column': [1, 1, 2, 3]
     }
     return pd.DataFrame(data)
 
@@ -26,7 +26,7 @@ def test_merge_data(tmpdir, mock_csv_data):
         assert len(result_df) == 3
         assert 'token1' in result_df['tokens'].values
         assert 'token2' in result_df['tokens'].values
-        assert 'token2' in result_df['tokens'].values
+        assert 'token3' in result_df['tokens'].values
 
 # Test for split_data function
 def test_split_data(tmpdir, mock_csv_data):
@@ -37,6 +37,6 @@ def test_split_data(tmpdir, mock_csv_data):
             split_data(rootdir, mock_logger)
             #assert (rootdir / 'data' / 'inter').exists()
             # Check if train and test path exist
-            assert (rootdir / 'data' / 'inter' / 'train.csv').exists()
-            assert (rootdir / 'data' / 'inter' / 'test.csv').exists()
+            assert (rootdir / 'data' / 'inter' / 'train.json').exists()
+            assert (rootdir / 'data' / 'inter' / 'test.json').exists()
 
