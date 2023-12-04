@@ -1,14 +1,12 @@
-# Use an official Python runtime as a parent image
 FROM python:3.9-slim
 
-# Set the working directory to /app
-WORKDIR /app
+WORKDIR /
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+ENV AIP_STORAGE_URI=gs://finerteam8/model
+ENV BUCKET_NAME=finer_data_bk
 
-# Run the command to install any necessary dependencies
-RUN pip install pandas 
+COPY trainer /trainer
 
-# Run hello.py when the container launches
-CMD ["python", "train.py"]
+RUN pip install --no-cache-dir tensorflow gcsfs google-cloud-storage scikit-learn joblib grpcio python-dotenv mlflow numpy
+
+CMD ["python3", "train.py"]
