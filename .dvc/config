@@ -1,4 +1,6 @@
 [core]
-    remote = drive_data
+    remote = gcp_data
 ['remote "drive_data"']
     url = gdrive://1evDWELBv6cx7n-q93yddgyQVIHoDxZ1W
+['remote "gcp_data"']
+    url = gs://finer_data_bk/dvc_tracking/

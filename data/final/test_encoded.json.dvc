@@ -1,0 +1,5 @@
+outs:
+- md5: 80b4a7440d7e72d20b580acdbda90ad7
+  size: 173287344
+  hash: md5
+  path: test_encoded.json
