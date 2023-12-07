@@ -27,7 +27,8 @@ def upload_files(PROJECT_FOLDER, BUCKET_NAME, logger):
     file_mappings = {
         PROJECT_FOLDER / 'data' / 'final' / 'train_token.json': 'train/train_token.json',
         PROJECT_FOLDER / 'data' / 'final' / 'test_token.json': 'test/test_token.json',
-        PROJECT_FOLDER / 'model_store' / 'tokenizerV1.pkl': 'model_store/tokenizerV1.pkl'
+        PROJECT_FOLDER / 'model_store' / 'tokenizerV1.pkl': 'model_store/tokenizerV1.pkl',
+        PROJECT_FOLDER / 'model_store' / 'stats.json' : 'model_store/stats.json'
     }
 
     for src, dest in file_mappings.items():

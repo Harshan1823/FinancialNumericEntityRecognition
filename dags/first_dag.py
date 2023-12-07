@@ -12,6 +12,7 @@ sys.path.append(str(root_dir))
 from dags import PROJECT_FOLDER
 from dags.src.data import DATASET_NAME
 from dags.src.data.download import download_and_store_data
+from dags.src.data.data_stats import data_stats
 from dags.src.data.logger_info import setup_logger
 from dags.src.data.data_split import split_data
 from dags.src.data.pre_process import conver_to_list
@@ -73,7 +74,6 @@ convert_train_list_dag = PythonOperator(
     dag = dag
 )
 
-
 convert_test_list_dag = PythonOperator(
     task_id = 'Convert_TEST_List',
     python_callable = conver_to_list,
@@ -95,6 +95,13 @@ generate_token_data_dag = PythonOperator(
     dag = dag
 )
 
+generate_data_stats = PythonOperator(
+    task_id = 'DataStats',
+    python_callable = data_stats,
+    op_kwargs = {'PROJECT_FOLDER': PROJECT_FOLDER, 'logger': setup_logger(root_dir, 'data_stats')},
+    dag = dag
+)
+
 gcloud_upload = PythonOperator(
     task_id = 'gcloud_upload',
     python_callable = upload_files,
@@ -105,4 +112,4 @@ gcloud_upload = PythonOperator(
 download_data_dag >> list_packages_task >> split_data_dag >> [convert_test_list_dag, convert_train_list_dag] # type: ignore
 convert_train_list_dag >> generate_tokeniser_dag # type: ignore
 generate_tokeniser_dag >> generate_token_data_dag # type: ignore
-generate_token_data_dag >> gcloud_upload # type: ignore
+generate_token_data_dag >> generate_data_stats >> gcloud_upload # type: ignore
