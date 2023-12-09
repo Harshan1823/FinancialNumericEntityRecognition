@@ -1,16 +1,10 @@
-import os
-import io
-import mlflow
-import time
 import gcsfs
-import mlflow.keras
+import time
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 from datetime import datetime
-from pathlib import Path
 from model import CustomNERModelV5
-from callbacks import F1ScoreCallback
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.sequence import pad_sequences
@@ -62,6 +56,7 @@ def upload_model_to_gcs(bucket_name, source_file_name, destination_blob_name):
 
 
 def pre_process_split_data(pad_len):
+    print("Reading the training data from GCS")
     train_df = read_json_from_gcs('gs://finer_data_bk/train/train_token.json')
     train_padded = pad_sequences(train_df['token_data'], maxlen=pad_len, padding='post')
     train_labels = pad_sequences(train_df['ner_tags'], maxlen=pad_len, padding='post')
@@ -71,59 +66,37 @@ def pre_process_split_data(pad_len):
 def train():
    
    hyperparameter_sets = [
-      {'d_model': 32, 'dff': 512, 'num_heads': 2, 'lstm_units': 64, 'rate': 0.1},
-        {'d_model': 64, 'dff': 256, 'num_heads': 4, 'lstm_units': 128, 'rate': 0.2},
-        {'d_model': 128, 'dff': 128, 'num_heads': 6, 'lstm_units': 256, 'rate': 0.3},
-        {'d_model': 256, 'dff': 64, 'num_heads': 8, 'lstm_units': 64, 'rate': 0.4},
-        {'d_model': 32, 'dff': 512, 'num_heads': 10, 'lstm_units': 128, 'rate': 0.5}
+    #   {'d_model': 32, 'dff': 512, 'num_heads': 2, 'lstm_units': 64, 'rate': 0.1},
+        {'d_model': 64, 'dff': 256, 'num_heads': 4, 'lstm_units': 128, 'rate': 0.2}
+        # {'d_model': 128, 'dff': 128, 'num_heads': 6, 'lstm_units': 256, 'rate': 0.3},
+        # {'d_model': 256, 'dff': 64, 'num_heads': 8, 'lstm_units': 64, 'rate': 0.4},
+        # {'d_model': 32, 'dff': 512, 'num_heads': 10, 'lstm_units': 128, 'rate': 0.5}
     ]
    num_tokens = 23056
    num_tags = 170
-   epochs = 2
+   epochs = 1
    pad_len = 32
    class_weights_dict = generate_class_weights()
    train_padded_split, val_padded_split, train_labels_split, val_labels_split = pre_process_split_data(pad_len)
    for i, hparams in enumerate(hyperparameter_sets):
+    print("Hyperparameter Tuning: " + str(i+1))
+    print("Hyperparameter: " + str(hparams))
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    model_name = f"my_model_{timestamp}"
-    with mlflow.start_run():
-        model = CustomNERModelV5(num_tokens, num_tags, hparams['d_model'], hparams['num_heads'], hparams['dff'], hparams['lstm_units'], hparams['rate'])
-
-        mlflow.log_params({
-            'num_tokens': num_tokens,
-            'num_tags': num_tags,
-            'd_model': hparams['d_model'],
-            'num_heads': hparams['num_heads'],
-            'dff': hparams['dff'],
-            'lstm_units': hparams['lstm_units'],
-            'epochs': epochs,
-            'pad_len':pad_len})
+    model_name = f"gcp_model_{timestamp}"
+    model = CustomNERModelV5(num_tokens, num_tags, hparams['d_model'], hparams['num_heads'], hparams['dff'], hparams['lstm_units'], hparams['rate'])
+    model.compile(
+        optimizer='adam',
+        loss='sparse_categorical_crossentropy',
+        metrics=['accuracy'])
         
-        f1_callback = F1ScoreCallback(
-            model=model, 
-            validation_data=(val_padded_split, val_labels_split), 
-            average='macro'
-        )
+    start_time = time.time()
+    history = model.fit(train_padded_split, train_labels_split, 
+        epochs=epochs, 
+        validation_data=(val_padded_split, val_labels_split), 
+        class_weight=class_weights_dict)
+    end_time = time.time()
 
-        model.compile(
-            optimizer='adam',
-            loss='sparse_categorical_crossentropy',
-            metrics=['accuracy'])
-        
-        start_time = time.time()
-        history = model.fit(train_padded_split, train_labels_split, 
-            epochs=epochs, 
-            validation_data=(val_padded_split, val_labels_split), 
-            class_weight=class_weights_dict, 
-            callbacks=[f1_callback])
-        end_time = time.time()
-
-        mlflow.log_metrics({'training_time': end_time - start_time})
-        mlflow.keras.log_model(model, f"{model_name}")
-        for metric, values in history.history.items():
-            mlflow.log_metric(metric, values[-1])
-    
-    
+    print(f"Time taken to train: {end_time-start_time} seconds")
     gcs_model_path = f"gs://finer_data_bk/model/{model_name}"
     model.save(gcs_model_path)
 

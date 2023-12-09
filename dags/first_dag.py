@@ -98,7 +98,7 @@ generate_token_data_dag = PythonOperator(
 generate_data_stats = PythonOperator(
     task_id = 'DataStats',
     python_callable = data_stats,
-    op_kwargs = {'PROJECT_FOLDER': PROJECT_FOLDER, 'logger': setup_logger(root_dir, 'data_stats')},
+    op_kwargs = {'PROJECT_FOLDER': PROJECT_FOLDER, 'LOGGER': setup_logger(root_dir, 'data_stats')},
     dag = dag
 )
 
