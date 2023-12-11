@@ -4,6 +4,8 @@ data/**/*.json
 notebooks/
 my_new_env/
 venv_proj/
+train_venv/*
+.test_p1/
 # Logs
 logs/
 mlruns/
