@@ -1,3 +1,5 @@
+import os
+
 import gcsfs
 import time
 import numpy as np
@@ -13,11 +15,13 @@ from google.api_core.exceptions import NotFound
 from google.oauth2 import service_account
 from google.logging.type import log_severity_pb2 as severity
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-
-service_account_file = '/trainer/finerteam8-00bf2670c240.json'
-credentials = service_account.Credentials.from_service_account_file(service_account_file)
-client = logging.Client(credentials=credentials)
-logger = client.logger('Training_pipeline')
+# from dotenv import load_dotenv
+#
+# load_dotenv()
+# service_account_file = os.getenv("service_account_file")
+# credentials = service_account.Credentials.from_service_account_file(service_account_file)
+# client = logging.Client(credentials=credentials)
+# logger = client.logger('Training_pipeline')
 
 def read_json_from_gcs(file_path):
     """
