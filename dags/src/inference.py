@@ -49,9 +49,9 @@ def predict_custom_trained_model(
 
 predict_custom_trained_model(
     project="187766244340",
-    endpoint_id="7316475826663325696",
+    endpoint_id="8248720949529018368",
     location="us-east1",
     instances= {
-        "text_input":"Tsjdka ss dasjhd  sdhas djas"
+        "text_input":"This company made a revenue of 30 billion"
         }
 )
