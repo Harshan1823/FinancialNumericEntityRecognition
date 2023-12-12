@@ -25,3 +25,5 @@ def genereate_tokenizer(PROJECT_FOLDER, logger):
     with open(MODEL_STORE / FILE_NAME, "wb") as file:
         pickle.dump(tokenizer, file)
     logger.info(f'Pickle file to {MODEL_STORE} / {FILE_NAME}')
+
+# genereate_tokenizer(Path('__file__').resolve().parent.parent.parent.parent)
