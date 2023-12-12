@@ -7,8 +7,17 @@ from datetime import datetime
 from model import CustomNERModelV5
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.model_selection import train_test_split
+from google.cloud import storage, logging, bigquery
+from google.cloud.bigquery import SchemaField
+from google.api_core.exceptions import NotFound
+from google.oauth2 import service_account
+from google.logging.type import log_severity_pb2 as severity
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
+service_account_file = '/trainer/finerteam8-00bf2670c240.json'
+credentials = service_account.Credentials.from_service_account_file(service_account_file)
+client = logging.Client(credentials=credentials)
+logger = client.logger('Training_pipeline')
 
 def read_json_from_gcs(file_path):
     """
@@ -74,13 +83,11 @@ def train():
     ]
    num_tokens = 23056
    num_tags = 170
-   epochs = 1
+   epochs = 3
    pad_len = 32
    class_weights_dict = generate_class_weights()
    train_padded_split, val_padded_split, train_labels_split, val_labels_split = pre_process_split_data(pad_len)
    for i, hparams in enumerate(hyperparameter_sets):
-    print("Hyperparameter Tuning: " + str(i+1))
-    print("Hyperparameter: " + str(hparams))
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     model_name = f"gcp_model_{timestamp}"
     model = CustomNERModelV5(num_tokens, num_tags, hparams['d_model'], hparams['num_heads'], hparams['dff'], hparams['lstm_units'], hparams['rate'])

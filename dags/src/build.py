@@ -1,6 +1,7 @@
 from google.cloud import aiplatform
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 
@@ -11,8 +12,10 @@ BASE_OUTPUT_DIR =  os.getenv("BASE_OUTPUT_DIR")
 BUCKET = os.getenv("AIP_MODEL_DIR")  # Should be same as AIP_STORAGE_URI specified in the docker file
 CONTAINER_URI = os.getenv("CONTAINER_URI")
 MODEL_SERVING_CONTAINER_IMAGE_URI = os.getenv("MODEL_SERVING_CONTAINER_IMAGE_URI")
-DISPLAY_NAME = 'finerprojectteam8'
+timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+DISPLAY_NAME = 'finerprojectteam8_' + timestamp
 SERVICE_ACCOUNT_EMAIL = os.getenv("SERVICE_ACCOUNT_EMAIL")
+
 
 
 print(REGION

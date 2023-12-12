@@ -3,6 +3,7 @@ import re
 import json
 import pickle
 import joblib
+import time
 import shutil
 import numpy as np
 from pathlib import Path
@@ -10,12 +11,62 @@ from google.cloud import storage
 import tensorflow as tf
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
+from datetime import datetime
+from google.api_core.exceptions import NotFound
+from google.cloud import storage, logging, bigquery
+from google.cloud.bigquery import SchemaField
+from google.oauth2 import service_account
+from google.logging.type import log_severity_pb2 as severity
+
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 load_dotenv()
 
+# Set up Google Cloud logging
+service_account_file = 'finerteam8-00bf2670c240.json'
+credentials = service_account.Credentials.from_service_account_file(service_account_file)
+client = logging.Client(credentials=credentials)
+logger = client.logger('Serving_pipeline')
+
+bq_client = bigquery.Client(credentials=credentials)
+table_id = os.environ['BIGQUERY_TABLE_ID']
+
 # Now you can use os.getenv to access your environment variables
 app = Flask(__name__)
+
+def get_table_schema():
+    """Build the table schema for the output table
+    
+    Returns:
+        List: List of `SchemaField` objects"""
+    return [
+        SchemaField("Text", "STRING", mode="REQUIRED"),
+        SchemaField("length", "INTEGER", mode="REQUIRED"),
+        SchemaField("timestamp", "TIMESTAMP", mode="REQUIRED"),
+        SchemaField("oov_words", "INTEGER", mode="REQUIRED"),
+        SchemaField("warning_flag", "INTEGER", mode="NULLABLE"),
+        SchemaField("latency", "FLOAT", mode="NULLABLE"),
+        SchemaField("predictions", "STRING", mode="REPEATED")
+    ]
+
+def create_table_if_not_exists(client, table_id, schema):
+    """Create a BigQuery table if it doesn't exist
+    
+    Args:
+        client (bigquery.client.Client): A BigQuery Client
+        table_id (str): The ID of the table to create
+        schema (List): List of `SchemaField` objects
+        
+    Returns:
+        None"""
+    try:
+        client.get_table(table_id)  # Make an API request.
+        print("Table {} already exists.".format(table_id))
+    except NotFound:
+        print("Table {} is not found. Creating table...".format(table_id))
+        table = bigquery.Table(table_id, schema=schema)
+        client.create_table(table)  # Make an API request.
+        print("Created table {}.{}.{}".format(table.project, table.dataset_id, table.table_id))
 
 def initialize_variables():
     """
@@ -126,17 +177,40 @@ def predict():
     Returns:
         Response: A Flask response containing JSON-formatted predictions.
     """
+    prediction_start_time = time.time()
     request_json = request.get_json()
     request_instances = request_json['instances']
-    input = request_instances[0]['text_input'].split()
+    text_inp = request_instances[0]['text_input']
+    input = text_inp.split()
+    logger.log_text(f'Input Data: {input}', severity='INFO')
     np_len = len(input)
     pro_inp = process_list(input)
     tok_inp = tokeniser.texts_to_sequences([pro_inp])
+    print(tok_inp[0])
+    oov_words = tok_inp[0].count(tokeniser.word_index['<OOV>'])
     pad_inp = pad_sequences(tok_inp, maxlen=32, padding='post')
     prediction = model.predict(pad_inp)
     label_prediction = np.argmax(prediction, axis = 2)[0][:np_len].tolist()
-    print(label_prediction)
+    current_timestamp = datetime.now().isoformat()
+    prediction_end_time = time.time()
+    prediction_latency = prediction_end_time - prediction_start_time
     prediction = {"predictions":label_prediction}
+    logger.log_text(f"Prediction results: {prediction}", severity='INFO')
+    rows_to_insert = [{
+        "Text" : text_inp,
+        "length": np_len,
+        "timestamp": current_timestamp,
+        "oov_words": oov_words,
+        "warning_flag":0,
+        "latency":prediction_latency,
+        "predictions": label_prediction
+    }]
+    print(rows_to_insert)
+    errors = bq_client.insert_rows_json(table_id, rows_to_insert)
+    if errors == []:
+        logger.log_text("New predictions inserted into BigQuery.", severity='INFO')
+    else:
+        logger.log_text(f"Encountered errors inserting predictions into BigQuery: {errors}", severity='ERROR')
     return jsonify(prediction)
     
 
@@ -145,6 +219,8 @@ print(project_id, bucket_name)
 storage_client, bucket = initialize_client_and_bucket(bucket_name)
 tokeniser = load_tokeniser(bucket)
 model = load_model(bucket, bucket_name)
+schema = get_table_schema()
+create_table_if_not_exists(bq_client, table_id, schema)
 
 if __name__ == '__main__':
     print("Started predict.py ")
