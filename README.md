@@ -1,6 +1,5 @@
 # Financial Numeric Entity Recognition
 
-print("""
 This project, titled "Financial Numeric Entity Recognition," is at the forefront of applying advanced machine learning techniques and MLOps practices to the intricate field of financial data analysis. It aims to automate the way numeric entities in financial documents are identified and processed. By automating the recognition of these entities, the projects engineered to enhance the accuracy and efficiency of financial data processing, thereby addressing a crucial need in the finance sector.   
 
 At the core of this project is a blend of powerful technologies and methodologies:
@@ -195,4 +194,24 @@ We are logging the following parameters using mlfow.
 ### Model Staging and Production:
 
 The models go through stages of development, from initial training to staging and eventually production deployment. We manage these stages using MLflow and Vertex AI, ensuring that our models are robust, efficient, and scalable.
+
+## Deployment Process:
+
+## Model Deployment:
+
+- Configure necessary environment variables (eg: Project, Bucket, Service Account, Container)
+- Initialize the Google Cloud AI platform.
+- Containerize the training job to build container image
+- Push the image to artifact registry
+- Run the container of training job in Vertex AI
+- Deploy the model
+- Expose the endpoint
+
+## Model Serving:
+
+- Define and containerize a Flask web application, containing a form to get input
+- Deploy the app on a Kubernetes cluster
+- On submit, access the deployed model through an API and return predictions
+- Render the results on the web application
+ 
     
