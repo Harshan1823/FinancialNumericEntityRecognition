@@ -1,20 +1,3 @@
-# from flask import Flask, render_template, request
-
-# app = Flask(__name__)
-
-# @app.route('/')
-# def index():
-#     return render_template('index.html')
-
-# @app.route('/predict', methods=['POST'])
-# def predict():
-#     user_input = request.form.get('text_input')
-#     print(user_input)
-#     return render_template('index.html', submitted_text=user_input)
-
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=8080)
-
 from flask import Flask, render_template, request
 from typing import Dict, List, Union
 from google.cloud import aiplatform
@@ -323,7 +306,7 @@ def submit_form():
     for i in output:
         output_name.append(names[int(i)])
     print(output)
-    return render_template('index.html', submitted_text=output_name)
+    return render_template('index.html', submitted_text=user_input, output=output_name)
 
 
 def predict_custom_trained_model(

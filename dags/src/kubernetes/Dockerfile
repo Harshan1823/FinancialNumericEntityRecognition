@@ -13,4 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 8081
 
+ENV GOOGLE_APPLICATION_CREDENTIALS="/app/finerteam8-00bf2670c240.json"
+
 CMD ["python", "app.py"]
