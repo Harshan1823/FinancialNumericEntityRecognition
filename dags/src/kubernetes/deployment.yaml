@@ -19,4 +19,4 @@ spec:
     spec:
       containers:
       - name: mlops
-        image: us-east1-docker.pkg.dev/finerteam8/kuberepo/kub@sha256:7ac05066dd41fa5e1e89a030da2c31274003be2bc18c63b9ee2a299605ec1f20
+        image: us-east1-docker.pkg.dev/finerteam8/kuberepo/kub@sha256:e767c60be9f77bd834700ff4a2c1d34b4d06c3f845ce1dce8726d9c4302869db
