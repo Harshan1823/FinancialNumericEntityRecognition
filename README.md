@@ -120,6 +120,27 @@ The data pipeline in the FinancialNumericEntityRecognition project consists of s
 - **tfdata_cleaning.py:** Handles the initial cleaning and formatting of the financial data.
 - **pre_process.py:** Further preprocesses the data, focusing on aspects crucial for NLP tasks such as tokenization and normalization.
 
+## Data Pipeline using Airflow Dags
+
+![Screenshot showing Data_Pipeline_Airflow_Dags](https://github.com/Harshan1823/FinancialNumericEntityRecognition/assets/22172209/2b6624ff-c94a-4ad0-af81-2b8b6ff000e4)
+
+The above image shows the data preprocessing pipeline. Following are the names and descriptions of the tasks that this dag is executing:
+1. **download_data_dag:** Downloads train.csv, test.csv, and validation.csv from hugging face datasets. The data is downloaded into a folder named “raw.”
+2. **list_packages_task:** prints output of “pip list”
+3. **split_data:** The dataset obtained from hugging face API was not split properly. There was a leak in training data to validation and test data. So we merged all three files, dropped duplicates, and split it again into train and test data. Results are stored in a folder named “inter.”
+4. **Convert_TEST_List:** Converts columns in test.csv from strings to lists using “ast.literal_eval”. Results are stored in a JSON file named “test_pre_process.json” in a folder named “final.”
+5. **Convert_TRAIN_List:** Converts columns in test.csv from strings to lists using “ast.literal_eval”. Results are stored in a JSON file named “train_pre_process.json” in a folder named “final.”
+6. **Generate_Tokeniser:** Train a tokenizer on all the words in the training data, using Tokenizer from “tensorflow.keras.preprocessing.text”. This task creates a folder called “model_store” inside the project directory and saves a file called “tokenizerV1.pkl”
+7. **TokenData:** Tokenizes the words in “train_pre_process.json” created in the “Convert_TRAIN_List” task and “test_pre_process.json” in the “Convert_TEST_List.” Results are stored in “train_token.json” and “test_token.json” inside the “final” folder created in the “Convert_TEST_List” task.
+8. **DataStats:** Calculates statistics like average string length, min string length, max string length, the standard deviation of string lengths, and 95 percentile of string length. The results are appended to “stats.json” inside the “model_store” folder created in the “Generate_Tokeniser” task.
+9. **Gcloud_upload:** “train_token.json,” “test_token.json,” “tokenizerV1.pkl” and “stats.json” to google cloud bucket.
+
+## Tracking files on Google Cloud Storage using DVC
+
+![Screenshot showing DVC_On_GCP_Bucket](https://github.com/Harshan1823/FinancialNumericEntityRecognition/assets/22172209/1c9869bd-c3c0-4341-960d-9a72c7c355a4)
+
+We are tracking the files in the final folder created in the “Convert_TEST_List” task in the data preprocessing using DVC. We use Google Cloud Bucket to store the tracked file’s hash files. In the image above we can see the hash folder md5.
+
 ### 3. Feature Engineering:
 - **tokenise_data.py:** This module is crucial for breaking down text into tokens, a fundamental step in NLP.
 - **custom_feature_engineering.py:** Tailored for extracting features specific to financial entities and numeric data, enhancing the input for machine learning models.
@@ -149,6 +170,29 @@ Our machine learning pipeline is hosted on Google Cloud Platform (GCP) and integ
 ### Experimental Tracking with MLflow:
 
 We use MLflow for tracking our experiments, focusing on metrics that are critical for evaluating NLP models in the context of financial data. MLflow's integration allows us to monitor, compare, and optimize model parameters effectively.
+
+![Screenshot showing MLFLow_Experiment_Tracking](https://github.com/Harshan1823/FinancialNumericEntityRecognition/assets/22172209/f21e8ee9-cb73-4e4c-a8c8-7d0ced4b156b)
+
+The above image shows the chart, which shows the different hyperparameters and metrics tracked by the mlflow. We are choosing the model with the highest f1_macro.
+We are logging the following parameters using mlfow.
+1. *num_tokens:* Number of words in vocabulary
+2. *num_tags:* Number of output labels
+3. *d_model:* Size of hidden layer
+4. *num_heads:* Number of attention heads
+5. *dff:* Size of feed-forward hidden layers
+6. *lstm_units:* Number of LSTM units in each LSTM layer
+7. *epochs:* Number of iterations. 
+8. *pad_length:* Max length of sentence in model
+9. *training_time:* Training time of the model
+10. *f1_macro:* A metric for evaluating the F1 score, which considers the balanced average across all classes.
+11. *F1_micro:* An overall F1 score that calculates precision and recall across all classes, suitable for imbalanced datasets.
+12. *Val_loss:* Validation loss, a measure of the model's performance on a validation dataset during training.
+13. *Loss:* General term referring to the model's error, commonly used during training to optimize the model.
+14. *accuracy:* A metric indicating the percentage of correctly classified instances in the dataset.
+15. *f1_weighted:* An F1 score that considers class imbalances by calculating a weighted average.
+16. *val_accuracy:* Validation accuracy, representing the accuracy of the model on a validation dataset during training.
+
+
 
 ### Model Staging and Production:
 
